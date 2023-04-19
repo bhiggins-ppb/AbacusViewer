@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model AbacusViewer.Models.SelectionFilter
+
+@{
+    ViewBag.Title = "Markets";
+}
+
+<section class="jumbotron text-center" id="home-content markets-jumbotron">
+    <div class="container">
+        <a class="btn btn-primary col-xs-2 pull-right" id="reload-event">
+            Reload
+            <i class="fas fa-sync"></i>
+        </a>
+        <h2 class="jumbotron-heading" id="heading markets-heading" style="margin-left: 110px;">
+            Event @HttpContextAccessor.HttpContext.Session.GetString("CurrentEventId")
+        </h2>
+        <p>
+            See event information below. Click the expand markets button below to view all markets and selections.
+        </p>
+        <hr>
+    </div>
+</section>
+
+
+<table id="grid-data" class="table table-condensed table-hover table-striped">
+    <thead>
+    <tr>
+        <th data-column-id="received_time_pretty">Received Time</th>
+        <th data-column-id="event_id">Event Id</th>
+        <th data-column-id="market_count">Number of Markets</th>
+        <th data-column-id="subclass_id">SubclassId</th>
+        <th data-column-id="event_type_id">EventTypeId</th>
+        <th data-column-id="commands" data-formatter="commands" data-sortable="false">Expand Markets</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+@section Scripts
+{
+    <script type="text/javascript" src="@Url.Content("/Scripts/Markets.js")"></script>
+}

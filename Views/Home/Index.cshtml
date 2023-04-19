@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+<section class="jumbotron text-center" id="home-content">
+    <div class="container">
+        <h1 class="jumbotron-heading" id="heading">Abacus Viewer</h1>
+        <span>
+            <img id="abacus--img" src="../img/abacus.png" alt="abacus image">
+        </span>
+        <p class="lead text-muted">
+            Search for an eventId published by the Agglomerator.
+            Also see the markets and selections published for that Event ID
+            and check the abacus price for a set of selections.
+        </p>
+        <br>
+        <form class="form-inline" onSubmit="return false;">
+            <div class="form-group col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-1" id="search-form">
+                <label class="sr-only" for="event-id-input">EventId</label>
+                <input oninput="validateEventId()" type="text" class="form-control" name="event-id-input" id="event-id-input" placeholder="Event ID">
+            </div>
+            <a href="@Url.Action("Selections", "Home")" class="btn btn-primary col-xs-3" id="search-events" onclick="return validateEventId()">
+                Search
+                <i class="fas fa-search abacus--home--icon"></i>
+            </a>
+        </form>
+    </div>
+</section>
+
