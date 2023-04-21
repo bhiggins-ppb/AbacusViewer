@@ -1,0 +1,34 @@
+﻿syntax = "proto3";
+
+// As per https://confluence.app.betfair/display/AHPP/Lightyear+SGM+Pricer+Contract#LightyearSGMPricerContract-Version3contract
+// - namespace changed to avoid conflict with old manually-compiled classes
+package Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
+
+import "google/protobuf/wrappers.proto";
+
+message AgglomeratedMarket {
+    int64 MarketId = 1;
+    int64 MarketTypeId = 2;
+    google.protobuf.DoubleValue HandicapValue = 3;
+    repeated AgglomeratedSelection Selections = 4;
+}
+
+// In order to cut down even further on transport costs, from v1 to v2 we're
+// using a single bit to represent each outcome under the AgglomeratedOutcomes.
+// For this reason, since we can only send bytes (and not individual bits) down
+// the wire, one of the AgglomeratedOutcomes bytes will need to be padded with
+// zeros when (NumberOfSimulations % 8) != 0.
+// Dead-heats and other non-100% weightings of outcomes will be tackled later
+// in a separate dedicated structure.
+message AgglomeratedSelection {
+    int64 SelectionId = 1;
+    bytes AgglomeratedOutcomes = 2;
+}
+
+message PublisherMessage {
+    int64 EventId = 1;
+    int64 SubclassId = 2;
+    int64 EventTypeId = 3;
+    int32 NumberOfSimulations = 4;
+    repeated AgglomeratedMarket Markets = 5;
+}

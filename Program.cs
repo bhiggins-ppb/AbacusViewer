@@ -1,6 +1,6 @@
 using AbacusViewer.Services;
-using Autofac;
-using Autofac.Integration.Mvc;
+//using Autofac;
+//using Autofac.Integration.Mvc;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Web.Mvc;
@@ -30,16 +30,17 @@ app.MapControllerRoute(
 
 app.Run();*/
 
-WebHost.CreateDefaultBuilder(args)
-    .UseContentRoot(Directory.GetCurrentDirectory())
-    .UseStartup<Startup>()
-    .Build().Run();
 
-var builder = new ContainerBuilder();
-builder.RegisterType<SingletonEventCollectorFactory>().WithParameter("maxQueueDepth", 50).SingleInstance();
+//WebHost.CreateDefaultBuilder(args)
+//    .UseContentRoot(Directory.GetCurrentDirectory())
+//    .UseStartup<Startup>()
+    //.Build().Run();
+
+//var builder = new ContainerBuilder();
+//builder.RegisterType<SingletonEventCollectorFactory>().WithParameter("maxQueueDepth", 50).SingleInstance();
 
 
-DependencyResolver.SetResolver(new AutofacDependencyResolver(builder.Build()));
+//DependencyResolver.SetResolver(new AutofacDependencyResolver(builder.Build()));
 
 public class Startup
 {

@@ -1,3 +1,5 @@
 .vs/**
 /bin/**
 /obj/**
+Kafka/bin/**
+Kafka/obj/**
