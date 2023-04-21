@@ -12,7 +12,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Confluent.Kafka.ConfigPropertyNames;
+//using static Confluent.Kafka.ConfigPropertyNames;
 
 namespace PesToRabbitBridge.Core.Kafka;
 
@@ -40,7 +40,79 @@ public sealed class KafkaConsumer : IDisposable
     //b-6.socmsk-nxt.dztv1a.c4.kafka.eu-west-1.amazonaws.com:9092
     //sbbme_agglomerated_events
 
+    public static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    public static DateTime FromMillisSinceEpoch(long millisFromEpoch)
+    {
+        DateTime epoch = Epoch;
+        return epoch.AddMilliseconds(millisFromEpoch);
+    }
+
     public static void Main(string[] args)
+    {
+        // There appears to be a constant stream of messages with event id 0 (why?) on partition 0,
+        // so any event id that ends with 0 is good for confirming that the consume loop works.
+        int desiredEventId = 9797460;
+
+        List<TopicPartition> topicPartitions = GetTopicPartitions();
+
+        // The message should be on the partition whose value is the modulus of the event id that we're looking for
+        TopicPartition relevantTopicPartition = topicPartitions.Single(tp => tp.Partition.Value == desiredEventId % topicPartitions.Count);
+
+        using var consumer = new ConsumerBuilder<Ignore, byte[]>(new ConsumerConfig()
+        {
+            BootstrapServers = "b-6.socmsk-nxt.dztv1a.c4.kafka.eu-west-1.amazonaws.com:9092", //kafkaConsumerConfiguration.BrokerList,
+            GroupId = "test-CG124", //kafkaConsumerConfiguration.ConsumerGroup,
+
+            AutoOffsetReset = AutoOffsetReset.Earliest,
+            AutoCommitIntervalMs = 10_000,
+        }).Build();
+
+        // Get the current low (oldest) and high (newest) message offsets for this partition
+        var watermarkOffsets = consumer.QueryWatermarkOffsets(relevantTopicPartition, TimeSpan.FromSeconds(40));
+        Console.WriteLine($"{relevantTopicPartition}: Low-{watermarkOffsets.Low.Value}, High-{watermarkOffsets.High.Value}");
+
+        // Assign the TPO to the consumer
+        consumer.Assign(new TopicPartitionOffset(relevantTopicPartition, watermarkOffsets.High));
+
+        // The high offset appears to be one past the most recent message
+        long offsetValue = watermarkOffsets.High.Value;
+        ConsumeResult<Ignore, byte[]> result;
+        var publishTime = DateTime.UtcNow;
+
+        // Note: This will always consume at least the most recent message, even if it might from before the window of interest
+        do
+        {
+            // Seek to the next older message offset - first time through the loop this will move the offset to the newest message
+            consumer.Seek(new TopicPartitionOffset(relevantTopicPartition, new Offset(--offsetValue)));
+
+            // Attempt to consume, wait at most 5 seconds for a response
+            result = consumer.Consume(5000);
+            if (result != null)
+            {
+                // Extract details from headers
+                long eventId = long.Parse(Encoding.Default.GetString(result.Message.Headers.Single(h => h.Key == "ppEventId").GetValueBytes()));
+                publishTime = FromMillisSinceEpoch(long.Parse(Encoding.Default.GetString(result.Message.Headers.Single(h => h.Key == "ppLyKafkaPublishTime").GetValueBytes())));
+                Console.WriteLine($"Partition: {result.TopicPartition.Partition.Value}, Offset: {result.Offset.Value}, Event Id: {eventId}, Length: {result.Message.Value.Length}, Publish time: {publishTime}");
+
+                if (eventId == desiredEventId)
+                {
+                    Console.WriteLine("I've finally found what I've been looking for!");
+
+                    // TODO: Extract message body
+
+                    break;
+                }
+            }
+
+            // Exit the loop if we received no result; we're far enough back in time; or we've just read the oldest message in the queue
+        } while (result != null && publishTime > DateTime.UtcNow.AddMinutes(-30) && offsetValue > watermarkOffsets.Low.Value);
+
+        // Unassign and close the consumer
+        consumer.Unassign();
+        consumer.Close();
+    }
+
+    public static void Main2(string[] args)
     {
         //var consumer = new KafkaConsumer();
         using var shutdownCts = new CancellationTokenSource();
@@ -53,22 +125,23 @@ public sealed class KafkaConsumer : IDisposable
 
         List<TopicPartition> topic_partitions = GetTopicPartitions();
 
-        using var consumer = new ConsumerBuilder<Ignore, byte[]>(new ConsumerConfig()
+        using var consumer = new ConsumerBuilder<Ignore, Ignore>(new ConsumerConfig()
         {
             BootstrapServers = "b-6.socmsk-nxt.dztv1a.c4.kafka.eu-west-1.amazonaws.com:9092", //kafkaConsumerConfiguration.BrokerList,
-            GroupId = "test-CG123", //kafkaConsumerConfiguration.ConsumerGroup,
+            GroupId = "test-CG124", //kafkaConsumerConfiguration.ConsumerGroup,
 
             AutoOffsetReset = AutoOffsetReset.Earliest,
             AutoCommitIntervalMs = 10_000,
         }).Build();
 
-        
-        consumer.Assign(topic_partitions);
+        //consumer.Assign(topic_partitions);
+        int desiredEventId = 9797467;
+        //consumer.Assign(topic_partitions.Where(tp => tp.Partition.Value == desiredEventId % topic_partitions.Count));
 
         List<TopicPartitionTimestamp> new_times = new List<TopicPartitionTimestamp>();
         foreach (TopicPartition tp in topic_partitions)
         {
-            new_times.Add(new TopicPartitionTimestamp(tp, new Timestamp(DateTime.Now.AddMinutes(-30))));
+            new_times.Add(new TopicPartitionTimestamp(tp, new Timestamp(DateTime.Now.AddMinutes(-6000))));
         }
 
         List<TopicPartitionOffset> seeked_offsets = consumer.OffsetsForTimes(new_times, TimeSpan.FromSeconds(40));
@@ -78,11 +151,26 @@ public sealed class KafkaConsumer : IDisposable
             s += $"{tpo.TopicPartition}: {tpo.Offset.Value}\n";
         }
         Console.WriteLine(s);
+
+        consumer.Assign(seeked_offsets.Where(o => o.Partition.Value == desiredEventId % topic_partitions.Count));
+
+        //consumer.Seek(seeked_offsets.Single(o => o.TopicPartition.Partition.Value == desiredEventId % topic_partitions.Count));
+
+        var result = consumer.Consume(5000);
+        while (result != null)
+        {
+            string eventId = Encoding.Default.GetString(result.Message.Headers.Single(h => h.Key == "ppEventId").GetValueBytes());
+            var publishTime = FromMillisSinceEpoch(long.Parse(Encoding.Default.GetString(result.Message.Headers.Single(h => h.Key == "ppLyKafkaPublishTime").GetValueBytes())));
+            Console.WriteLine($"Partition: {result.TopicPartition.Partition.Value}, Event Id: {eventId}, Publish time: {publishTime}");
+
+            result = consumer.Consume(5000);
+        }
+
         consumer.Close();
 
-        using _consumer = new KafkaConsumer();
+        //using _consumer = new KafkaConsumer();
 
-        ConsumeLoopInternal()
+        //ConsumeLoopInternal()
         //consumer.ConsumeLoop(shutdownCts.Token);
 
     }
