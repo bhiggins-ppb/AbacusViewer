@@ -1,5 +1,6 @@
 ﻿using Confluent.Kafka;
 using Google.Protobuf;
+using Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
 //using KestrelTest.Core;
 //using Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
 //using Microsoft.Extensions.Logging;
@@ -49,10 +50,13 @@ public sealed class KafkaConsumer : IDisposable
 
     public static void Main(string[] args)
     {
+        var message = GetMostRecentMessageForEventId(32725370);
+    }
+
+    public static PublisherMessage GetMostRecentMessageForEventId(long desiredEventId)
+    {
         // There appears to be a constant stream of messages with event id 0 (why?) on partition 0,
         // so any event id that ends with 0 is good for confirming that the consume loop works.
-        int desiredEventId = 9797460;
-
         List<TopicPartition> topicPartitions = GetTopicPartitions();
 
         // The message should be on the partition whose value is the modulus of the event id that we're looking for
@@ -79,6 +83,7 @@ public sealed class KafkaConsumer : IDisposable
         ConsumeResult<Ignore, byte[]> result;
         var publishTime = DateTime.UtcNow;
 
+        PublisherMessage message = null;
         // Note: This will always consume at least the most recent message, even if it might from before the window of interest
         do
         {
@@ -99,6 +104,10 @@ public sealed class KafkaConsumer : IDisposable
                     Console.WriteLine("I've finally found what I've been looking for!");
 
                     // TODO: Extract message body
+                    using var ms = new MemoryStream(result.Message.Value);
+                    using var gzdec = new GZipStream(ms, CompressionMode.Decompress);
+
+                    message = PublisherMessage.Parser.ParseFrom(gzdec);
 
                     break;
                 }
@@ -108,8 +117,11 @@ public sealed class KafkaConsumer : IDisposable
         } while (result != null && publishTime > DateTime.UtcNow.AddMinutes(-30) && offsetValue > watermarkOffsets.Low.Value);
 
         // Unassign and close the consumer
+
         consumer.Unassign();
         consumer.Close();
+
+        return message;
     }
 
     public static void Main2(string[] args)

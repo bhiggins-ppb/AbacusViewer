@@ -8,9 +8,21 @@
   </PropertyGroup>
 	
   <ItemGroup>
+    <None Remove="proto\pes_v3.proto" />
+  </ItemGroup>
+	
+  <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.1.0" />
     <PackageReference Include="Google.Protobuf" Version="3.22.3" />
+    <PackageReference Include="Grpc.Tools" Version="2.54.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.2" />
+  </ItemGroup>
+	
+  <ItemGroup>
+    <Protobuf Include="proto\pes_v3.proto" />
   </ItemGroup>
 
 </Project>
