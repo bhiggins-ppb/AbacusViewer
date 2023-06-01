@@ -11,6 +11,7 @@
         ajax: true,
         url: "/Home/Selections", //this is the same as doing a jquery Ajax POST and passing the 3 values expected in the home controller
         requestHandler: function(request) {
+            request.eventId = $('#CurrentEventId').val();
             request.filter = "";
             return request;
         },

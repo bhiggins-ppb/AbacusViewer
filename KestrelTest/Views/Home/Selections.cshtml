@@ -13,12 +13,12 @@
             <i class="fas fa-sync"></i>
         </a>
         <h2 class="jumbotron-heading" id="heading markets-heading" style="margin-left: 110px;">
-            Event @HttpContextAccessor.HttpContext.Session.GetString("CurrentEventId")
-            <input type="text" id="CurrentEventId" name="CurrentEventId" value="@HttpContextAccessor.HttpContext.Session.GetString("CurrentEventId")"
+            Event @Model.EventId
+            <input type="text" id="CurrentEventId" name="CurrentEventId" value="@Model.EventId"
                    class="form-control hidden">
         </h2>
         <p>
-            See the markets and selections published for event @HttpContextAccessor.HttpContext.Session.GetString("CurrentEventId") below and check
+            See the markets and selections published for event @Model.EventId below and check
             the price for a set of selections
         </p>
         <hr>
@@ -45,7 +45,8 @@
         <tbody></tbody>
     </table>
 </div>
-    @section Scripts
+
+@section Scripts
 {
-        <script type="text/javascript" src="@Url.Content("/Scripts/Selections.js")"></script>
-    }
+    <script type="text/javascript" src="@Url.Content("/Scripts/Selections.js")"></script>
+}

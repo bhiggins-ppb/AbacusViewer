@@ -1,21 +1,25 @@
-﻿using AbacusViewer.Models;
+﻿using AbacusViewer.Contracts.V2;
+using AbacusViewer.Models;
+using Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Web.Mvc;
 //using AbacusViewer.Utility;
 
 namespace AbacusViewer.Controllers
 {
     public partial class HomeController
     {
-        /*[HttpPost]
+        [HttpPost]
         //[GZipOrDeflate]
-        public ActionResult Selections(int current, int rowCount, Dictionary<string, string> sort, string searchPhrase, string filter)
+        public ActionResult Selections(long eventId, int current, int rowCount, Dictionary<string, string> sort, string searchPhrase, string filter)
         {
-            var raw = GetRawSelections().ToList();
+            if (searchPhrase == null) searchPhrase = string.Empty;
+
+            var raw = GetRawSelections(eventId)?.ToList();
 
             //if (Session["AbacusJointSelection"] != null)
             //{
@@ -74,7 +78,7 @@ namespace AbacusViewer.Controllers
 
             string json = "{\"current\": " + current + ", \"rowCount\": " + rowCount + ",\"rows\": " + JsonConvert.SerializeObject(paged.ToList()) + ", \"total\": " + filtered.Count() + "}";
             return new ContentResult { Content = json, ContentType = "application/json" };
-        }*/
+        }
 
         [HttpGet]
         public ActionResult UpdateJointSelection(int forMarketTypeId, int forSelectionId, bool include)
@@ -125,9 +129,17 @@ namespace AbacusViewer.Controllers
             return null;
         }
 
-        private IEnumerable<AbacusSelection> GetRawSelections()
+        private IEnumerable<AbacusSelection> GetRawSelections(long currentEventId)
         {
-            long currentEventId = 12345l;
+            //long currentEventId = 33065280;
+
+            PublisherMessage message = PesToRabbitBridge.Core.Kafka.KafkaConsumer.GetMostRecentMessageForEventId(currentEventId);
+
+            //JsonConvert.DeserializeObject<AgglomeratedEvent>(message);
+
+            AbacusEventFromPublisherMessage evt = new AbacusEventFromPublisherMessage(message);
+
+
             //long.TryParse(Session["CurrentEventId"]?.ToString() ?? "0", out var currentEventId);
 
             //if (!_eventCollector.AbacusEvents.ContainsKey(currentEventId)) return new List<AbacusSelection>();
@@ -139,14 +151,15 @@ namespace AbacusViewer.Controllers
 
             //if (ems == null)
             //{
-                //var ems = _emsProvider.GetEventMarketSelections(currentEventId, url);
-                /*if (ems != null)
-                {
-                    System.Web.HttpRuntime.Cache[$"ems_{currentEventId}"] = ems;
-                }*/
+            //var ems = _emsProvider.GetEventMarketSelections(currentEventId, url);
+            /*if (ems != null)
+            {
+                System.Web.HttpRuntime.Cache[$"ems_{currentEventId}"] = ems;
+            }*/
             //}
 
-            var selections = _eventCollector.AbacusEvents[currentEventId].Selections.ToList();
+            //var selections = _eventCollector.AbacusEvents[currentEventId].Selections.ToList();
+            return evt?.Selections;
 
 
             /*if (ems?.Markets == null)
@@ -154,20 +167,20 @@ namespace AbacusViewer.Controllers
 
             var emsFlatSelections = ems.Markets.SelectMany(p => p.Selections);*/
 
-            Dictionary<long, Selection> emsSelectionDictionary = null;// emsFlatSelections.ToDictionary(key => key.PaddyPowerId, val => val);
+            //Dictionary<long, Selection> emsSelectionDictionary = null;// emsFlatSelections.ToDictionary(key => key.PaddyPowerId, val => val);
 
-            foreach (var sel in selections.AsParallel())
-            {
-                emsSelectionDictionary.TryGetValue(sel.SelectionId, out var abacusSelection);
+            //foreach (var sel in selections.AsParallel())
+            //{
+            //    emsSelectionDictionary.TryGetValue(sel.SelectionId, out var abacusSelection);
 
-                if (abacusSelection != null)
-                {
-                    sel.SelectionIdentifier = abacusSelection.Name;
-                }
+            //    if (abacusSelection != null)
+            //    {
+            //        sel.SelectionIdentifier = abacusSelection.Name;
+            //    }
 
-            }
+            //}
 
-            return selections;
+            //return selections;
         }
     }
 }

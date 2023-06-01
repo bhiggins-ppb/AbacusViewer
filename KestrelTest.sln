@@ -1,9 +1,8 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KestrelTest", "KestrelTest.csproj", "{11F7FBC3-7F5E-4CFB-A065-401531A4F4CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KestrelTest", "KestrelTest\KestrelTest.csproj", "{11F7FBC3-7F5E-4CFB-A065-401531A4F4CB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kafka", "Kafka\Kafka.csproj", "{82154566-CA44-4780-9FAC-2D727F099281}"
 EndProject

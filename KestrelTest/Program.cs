@@ -3,13 +3,14 @@ using AbacusViewer.Services;
 //using Autofac.Integration.Mvc;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Web.Mvc;
 
 
-/*var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
+//builder.Services.AddSession(s => s.IdleTimeout = TimeSpan.FromMinutes(30));
 
 var app = builder.Build();
 
@@ -28,13 +29,14 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.Run();*/
+
+app.Run();
 
 
 //WebHost.CreateDefaultBuilder(args)
 //    .UseContentRoot(Directory.GetCurrentDirectory())
 //    .UseStartup<Startup>()
-    //.Build().Run();
+//.Build().Run();
 
 //var builder = new ContainerBuilder();
 //builder.RegisterType<SingletonEventCollectorFactory>().WithParameter("maxQueueDepth", 50).SingleInstance();
@@ -55,7 +57,8 @@ public class Startup
         });*/
         services.AddSession(s => s.IdleTimeout = TimeSpan.FromMinutes(30));
         services.AddMvc(option => option.EnableEndpointRouting = false);
-        services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        //services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddHttpContextAccessor();
         services.AddSingleton(x => new SingletonEventCollectorFactory(50));
     }
 

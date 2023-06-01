@@ -50,7 +50,7 @@ public sealed class KafkaConsumer : IDisposable
 
     public static void Main(string[] args)
     {
-        var message = GetMostRecentMessageForEventId(32725370);
+        var message = GetMostRecentMessageForEventId(2849583);
     }
 
     public static PublisherMessage GetMostRecentMessageForEventId(long desiredEventId)
@@ -65,7 +65,7 @@ public sealed class KafkaConsumer : IDisposable
         using var consumer = new ConsumerBuilder<Ignore, byte[]>(new ConsumerConfig()
         {
             BootstrapServers = "b-6.socmsk-nxt.dztv1a.c4.kafka.eu-west-1.amazonaws.com:9092", //kafkaConsumerConfiguration.BrokerList,
-            GroupId = "test-CG124", //kafkaConsumerConfiguration.ConsumerGroup,
+            GroupId = "test-CG128", //kafkaConsumerConfiguration.ConsumerGroup,
 
             AutoOffsetReset = AutoOffsetReset.Earliest,
             AutoCommitIntervalMs = 10_000,
@@ -91,7 +91,7 @@ public sealed class KafkaConsumer : IDisposable
             consumer.Seek(new TopicPartitionOffset(relevantTopicPartition, new Offset(--offsetValue)));
 
             // Attempt to consume, wait at most 5 seconds for a response
-            result = consumer.Consume(5000);
+            result = consumer.Consume(15000);
             if (result != null)
             {
                 // Extract details from headers
@@ -114,7 +114,7 @@ public sealed class KafkaConsumer : IDisposable
             }
 
             // Exit the loop if we received no result; we're far enough back in time; or we've just read the oldest message in the queue
-        } while (result != null && publishTime > DateTime.UtcNow.AddMinutes(-30) && offsetValue > watermarkOffsets.Low.Value);
+        } while (result != null && publishTime > DateTime.UtcNow.AddMinutes(-120) && offsetValue > watermarkOffsets.Low.Value);
 
         // Unassign and close the consumer
 
