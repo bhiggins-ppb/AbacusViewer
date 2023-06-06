@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AbacusViewer.Contracts.V2;
+using Google.Protobuf;
 using Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
 using Newtonsoft.Json;
 
@@ -49,19 +50,35 @@ namespace AbacusViewer.Models
                     {
                         foreach (var s in m.Selections)
                         {
+                            var selectionVector = UnpackBits(s.AgglomeratedOutcomes, 10000);
+
                             ret.Add(new AbacusSelection
                             {
                                 MarketTypeId = m.MarketTypeId,
                                 SelectionId = s.SelectionId,
                                 SelectionIdentifier = $"{s.SelectionId}", //"N/A", //s.SelectionIdentifier, // TODO - add this assignment when the AgglomeratedSelection has this property
-                                Probability = s.AgglomeratedOutcomes.Count(x => x.Equals(1)) / (double)s.AgglomeratedOutcomes.Count(),
+                                Probability = selectionVector.Count(x => x.Equals(1)) / (double)selectionVector.Count(),
                                 Outcomes = s.AgglomeratedOutcomes.ToByteArray()
                             });
+                           
                         }
                     }
                 }
                 return ret;
             }
+        }
+
+        private static byte[] UnpackBits(ByteString byteString, int numSimulations)
+        {
+            var values = new byte[numSimulations];
+            for (var i = 0; i < numSimulations; ++i)
+            {
+                var wordIndex = i >> 3;
+                var bitIndex = i & 0x7;
+                var word = byteString[wordIndex];
+                values[i] = (byte)((word >> bitIndex) & 1);
+            }
+            return values;
         }
     }
 }

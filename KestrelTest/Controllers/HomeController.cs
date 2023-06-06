@@ -12,11 +12,10 @@ namespace AbacusViewer.Controllers
         //private string UserName { get { return User != null ? User.Identity.Name : "N/A"; } }
         //private readonly IEMSServiceProvider _emsProvider;
 
-        public HomeController(//SingletonEventCollectorFactory eventCollectorFactory,
-                              //  IEMSServiceProvider emsProvider
-                            )
+        public HomeController(EventCollector eventCollector)
+                              //  IEMSServiceProvider emsProvider)
         {
-            //_eventCollector = eventCollectorFactory.Instance;
+            _eventCollector = eventCollector;
             //_emsProvider = emsProvider;
         }
 

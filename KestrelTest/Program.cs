@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton(x => new EventCollector(50));
+
 //builder.Services.AddSession(s => s.IdleTimeout = TimeSpan.FromMinutes(30));
 
 var app = builder.Build();
@@ -59,7 +61,7 @@ public class Startup
         services.AddMvc(option => option.EnableEndpointRouting = false);
         //services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddHttpContextAccessor();
-        services.AddSingleton(x => new SingletonEventCollectorFactory(50));
+        services.AddSingleton(x => new EventCollector(50));
     }
 
     public void Configure(IApplicationBuilder app, Microsoft.Extensions.Hosting.IHostingEnvironment env)

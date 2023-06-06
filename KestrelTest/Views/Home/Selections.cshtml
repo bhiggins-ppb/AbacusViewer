@@ -17,11 +17,13 @@
             <input type="text" id="CurrentEventId" name="CurrentEventId" value="@Model.EventId"
                    class="form-control hidden">
         </h2>
+
         <p>
             See the markets and selections published for event @Model.EventId below and check
             the price for a set of selections
         </p>
         <hr>
+
         <button type="button" class="btn pull-left" id="joint">
             Joint-Selection Probability  <span class="badge badge-light" id="joint-probability">0</span>
         </button>
@@ -30,6 +32,7 @@
         </button>
     </div>
 </section>
+
 <div id="table-container">
     <table id="grid-data" class="table table-condensed table-hover table-striped">
         <thead>
