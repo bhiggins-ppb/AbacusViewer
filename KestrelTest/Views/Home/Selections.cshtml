@@ -24,26 +24,28 @@
         </p>
         <hr>
 
-        <button type="button" class="btn pull-left" id="joint">
-            Joint-Selection Probability  <span class="badge badge-light" id="joint-probability">0</span>
-        </button>
-        <button type="button" class="btn pull-right" id="price">
-            Price <span class="badge badge-light">0</span>
-        </button>
+        <div class="math">
+             <div class="callout callout-default" id="joint">
+                <h4>Joint-Selection Probability  <span class="badge badge-light" id="joint-probability">0</span></h4>
+             </div>
+             <div class="callout callout-primary" id="price">
+                <h4>Price <span class="badge badge-light">0</span></h4>
+             </div>
+        </div>
+        
     </div>
 </section>
 
 <div id="table-container">
     <table id="grid-data" class="table table-condensed table-hover table-striped">
         <thead>
-        <tr>
-            <th data-column-id="market_name" data-sortable="true">Market Name</th>
-            <th data-column-id="market_type_id" data-sortable="true">Market Id</th>
-            <th data-column-id="selection_identifier" data-sortable="false">Selection Name</th>
-            <th data-column-id="probability" data-sortable="false">Probability</th>
-            <th data-column-id="price" data-type="numeric" data-sortable="false">Price</th>
-            <th data-column-id="commands" data-formatter="commands" data-sortable="false">Select</th>
-        </tr>
+            <tr>
+                <th data-column-id="market_name" data-sortable="true" data-header-css-class="market-name-header-name" data-width="30%">Market Name</th>
+                <th data-column-id="market_type_id" data-sortable="true">Market Id</th>
+                <th data-column-id="selection_id" data-sortable="false" data-type="numeric" data-converter="numeric" data-identifier="true">Selection Name</th>
+                <th data-column-id="probability" data-sortable="false">Probability</th>
+                <th data-column-id="price" data-type="numeric" data-sortable="false">Price</th>
+            </tr>
         </thead>
         <tbody></tbody>
     </table>

@@ -3,6 +3,8 @@
 */
 
 :root {
+	--default-color: #777;
+	--primary-color: #428bca;
 	--green-colour: #00A65A;
 	--dark-green-colour: #008046;
 	--light-grey-colour: #ccc;
@@ -17,8 +19,8 @@
 */
 
 #abacus--navbar {
-	background: var(--green-colour);
-	border-color: var(--green-colour);
+	background: var(--default-color);
+	border-color: var(--default-color);
 }
 
 #abacus--brand {
@@ -77,10 +79,6 @@
     font-size: 17px;
 }
 
-.jumbotron .container {
-	max-width: 40rem;
-}
-
 #markets-jumbotron {
     margin-bottom: -30px !important;
 }
@@ -107,8 +105,8 @@
 
 .btn-primary {
 	color: var(--white-colour);
-	background-color: var(--blue-colour);
-	border-color: var(--blue-colour);
+	background-color: var(--primary-color);
+	border-color: var(--primary-color);
 }
 
 /*
@@ -143,11 +141,6 @@
     margin-bottom: 30px;
 }
 
-#table-container {
-	overflow-y: scroll;
-	max-height: 650px;
-}
-
 .pagination a:hover {
     cursor: pointer !important;
 }
@@ -156,13 +149,15 @@
     margin-left: 25px;
 }
 
-
+.market-name-header-name{
+	width: 30%;
+}
 /*
 	event page
 */
 .event-heading {
-    font-weight: 200;
-    text-align: left;
+	font-weight: 200;
+	text-align: left;
 }
 
 .event-heading .fa {
@@ -173,12 +168,40 @@
     market price & probability
 */
 
-#joint, #price {
-    background: var(--green-colour);
-    color: var(--white-colour);
-    border: 0;
+.callout {
+	padding: 20px;
+	margin: 20px 0;
+	border: 1px solid #eee;
+	border-left-width: 5px;
+	border-radius: 3px;
 }
 
-#joint:focus, #price:focus {
-    outline: 0;
+.callout h4 {
+	margin-top: 0;
+	margin-bottom: 5px;
+}
+
+.callout p:last-child {
+	margin-bottom: 0;
+}
+
+.callout-default {
+	border-left-color: var(--default-color);
+}
+
+.callout-default h4 {
+	color: var(--default-color);
+}
+
+.callout-primary {
+	border-left-color: var(--primary-color);
+}
+
+.callout-primary h4{
+	color: var(--primary-color);
+}
+
+.math div{
+	display: inline-block;
+	width: 49.8%;
 }

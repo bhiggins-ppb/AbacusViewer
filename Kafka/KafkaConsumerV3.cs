@@ -105,6 +105,7 @@ public sealed class KafkaConsumer : IDisposable
 
                     // TODO: Extract message body
                     using var ms = new MemoryStream(result.Message.Value);
+                    //File.WriteAllBytes("C:\\Work\\Sports\\Soccer\\"+eventId.ToString(), result.Message.Value);
                     using var gzdec = new GZipStream(ms, CompressionMode.Decompress);
 
                     message = PublisherMessage.Parser.ParseFrom(gzdec);

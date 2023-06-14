@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AbacusViewer.Contracts.V2;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
 using Newtonsoft.Json;
 
@@ -56,9 +52,8 @@ namespace AbacusViewer.Models
                             {
                                 MarketTypeId = m.MarketTypeId,
                                 SelectionId = s.SelectionId,
-                                SelectionIdentifier = $"{s.SelectionId}", //"N/A", //s.SelectionIdentifier, // TODO - add this assignment when the AgglomeratedSelection has this property
                                 Probability = selectionVector.Count(x => x.Equals(1)) / (double)selectionVector.Count(),
-                                Outcomes = s.AgglomeratedOutcomes.ToByteArray()
+                                Outcomes = selectionVector
                             });
                            
                         }

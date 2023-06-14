@@ -14,9 +14,6 @@ namespace AbacusViewer.Models
         [JsonProperty("selection_id")]
         public long SelectionId { get; set; }
 
-        [JsonProperty("selection_identifier")]
-        public string SelectionIdentifier { get; set; }
-
         [JsonProperty("probability")]
         public double Probability { get; set; }
 

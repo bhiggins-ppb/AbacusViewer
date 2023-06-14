@@ -1,60 +1,57 @@
 ﻿$(document).ready(function () {
 
-    //reload the page every 30 seconds.
-    //setInterval(function () {
-    //    DoReload();
-    //}, 30000);
+    var jointProbability = 1;
 
-    //initialize jquery bootgrid. 
-    //first we need to destroy the original instance as it was created in the markets.js also.
-    $("#grid-data").bootgrid("destroy").bootgrid({
+    $("#grid-data").bootgrid({
+
+        selection: true,
+        multiSelect: true,
+        rowSelect: true,
+        keepSelection: true,
+
         ajax: true,
         url: "/Home/Selections", //this is the same as doing a jquery Ajax POST and passing the 3 values expected in the home controller
-        requestHandler: function(request) {
+        requestHandler: function (request) {
             request.eventId = $('#CurrentEventId').val();
             request.filter = "";
             return request;
         },
-        formatters:
-        {
-                "commands": function (column, row) {
 
-                    const checkboxInputString = "<input type=\"checkbox\" id=\"" +
-                        row.market_type_id + "_" + row.selection_id +
-                        "\" onclick=\"CalcJointProbability(this)\"/>";
-
-                    // row.commands represents the boolean value of the select input being selected.
-                    if (row.commands) {
-                        //on page load - 
-                        //call the calculate joint probability function.
-                        //Note that the callback(cb) needs to be recreated because of its context.
-                        //This is because When we click on the checkbox input on the ui, 
-                        //the`this` context contains the id and checked value already.
-                        CalcJointProbability({
-                            id: row.market_type_id + "_" + row.selection_id,
-                            checked: true
-                        });
-
-                        //append the `checked` attribute to the input string and return it.
-
-                        //create array of input attributes
-                        const splitInputArray = checkboxInputString.split(" ");
-                        //append the checked attribute to index 2 of the array
-                        splitInputArray.splice(2, 0, 'checked');
-                        //join array back as string and return it
-                        return splitInputArray.join(" ");
-                    }
-                    return checkboxInputString;
-                }
-		},
-        rowCount: [-1],
+        rowCount: [100, -1],
         navigation: 3, //show both pagination at bottom and search at top. 
         caseSensitive: false //search sensitivity.
+    })
+    .on("selected.rs.jquery.bootgrid", function (e, rows) {
+        for (var i = 0; i < rows.length; i++) {
+            jointProbability *= rows[i].probability; // TODO: replace dummy calculation
+        }
+
+        var selectedRows = $("#grid-data").bootgrid("getSelectedRows");
+
+        $("#joint span").text(jointProbability.toFixed(3));
+
+        if (jointProbability != 0) {
+            $("#price span").text((1 / jointProbability).toFixed(3));
+        }
+        
+    })
+    .on("deselected.rs.jquery.bootgrid", function (e, rows) {
+        for (var i = 0; i < rows.length; i++) {
+            jointProbability /= rows[i].probability;
+        }
+
+        var selectedRows = $("#grid-data").bootgrid("getSelectedRows");
+
+        $("#joint span").text(jointProbability.toFixed(3));
+
+        if (jointProbability != 0) {
+            $("#price span").text((1 / jointProbability).toFixed(3));
+        }
     });
 
     //add pull-left class to search bar
     $('#grid-data-header .search').addClass('pull-left');
-});
+})
 
 function DoReload() {
     //if the id exists in the div; likewise you could get the value from the window.location.search value.
@@ -70,13 +67,7 @@ function CalcJointProbability(cb) {
     const tokens = cb.id.split("_");
     const marketTypeId = tokens[0];
     const selectionId = tokens[1];
-    const url = "/Home/UpdateJointSelection?forMarketTypeId=" + marketTypeId + "&forSelectionId=" + selectionId + "&include=" + cb.checked;
-    $.getJSON(url, null,
-        function (data) {
-            //append the values to their divs.
-            console.log(data);
-            $("#joint span").text(data.Probability.toFixed(3));
-            $("#price span").text(data.Price.toFixed(3));
-        }
-    );
+    const probability = tokens[3];
+
+    // TODO: add actual implementation
 }

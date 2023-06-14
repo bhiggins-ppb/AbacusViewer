@@ -1,24 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using AbacusViewer.Services;
 using AbacusViewer.Models;
-using System.Web;
-using Microsoft.AspNetCore.WebUtilities;
+using Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
+using Newtonsoft.Json;
 
 namespace AbacusViewer.Controllers
 {
     public partial class HomeController : Controller
     {
-        private readonly EventCollector _eventCollector;
-        //private string UserName { get { return User != null ? User.Identity.Name : "N/A"; } }
-        //private readonly IEMSServiceProvider _emsProvider;
-
-        public HomeController(EventCollector eventCollector)
-                              //  IEMSServiceProvider emsProvider)
-        {
-            _eventCollector = eventCollector;
-            //_emsProvider = emsProvider;
-        }
-
         public ActionResult Index()
         {
             return View();
@@ -31,18 +19,6 @@ namespace AbacusViewer.Controllers
 
         public ActionResult Selections(long eventId, string filter)
         {
-            /*var currentEventId = HttpContext.Request.Query["eventid"];
-
-            if (HttpContext.Session.Get("CurrentEventId") != null)
-            {
-                if (currentEventId != HttpContext.Session.GetString("CurrentEventId"))
-                {
-                    HttpContext.Session.Set("AbacusJointSelection", null);
-                }
-            }
-
-            HttpContext.Session.SetString("CurrentEventId", currentEventId);*/
-
             return View(new SelectionFilter
             {
                 EventId = eventId,
@@ -50,49 +26,65 @@ namespace AbacusViewer.Controllers
             });
         }
 
-        /*public ActionResult Selections(long eventId, string filter)
+        [HttpPost]
+        public ActionResult Selections(long eventId, int current, int rowCount, Dictionary<string, string> sort, string searchPhrase, string filter)
         {
-            //Int64.TryParse(Request.QueryString["eventid"], out var currentEventId);
-            int.TryParse(HttpUtility.ParseQueryString(Request.QueryString.Value).Get("eventid"), out var currentEventId);
+            if (searchPhrase == null) searchPhrase = string.Empty;
 
-            if (HttpContext.Session.Get("CurrentEventId") != null)
+            var raw = GetRawSelections(eventId)?.ToList();
+
+            var newFiltered = new List<AbacusSelection>();
+
+            var filtered = raw.Where(x => x.MarketTypeId.ToString().IndexOf(searchPhrase, StringComparison.OrdinalIgnoreCase) > -1
+                                          || x.MarketName.ToString().IndexOf(searchPhrase, StringComparison.OrdinalIgnoreCase) > -1
+                                          || x.SelectionId.ToString().IndexOf(searchPhrase, StringComparison.OrdinalIgnoreCase) > -1);
+
+            if (sort != null)
             {
-                if (currentEventId != BitConverter.ToInt64(HttpContext.Session.Get("CurrentEventId")))
+                if (sort.ContainsKey("market_type_id")) filtered = (sort["market_type_id"] != "desc") ? filtered.OrderBy(x => x.MarketTypeId) : filtered.OrderByDescending(x => x.MarketTypeId);
+                else if (sort.ContainsKey("market_name")) filtered = (sort["market_name"] != "desc") ? filtered.OrderBy(x => x.MarketName) : filtered.OrderByDescending(x => x.MarketName);
+                else if (sort.ContainsKey("selection_id")) filtered = (sort["selection_id"] != "desc") ? filtered.OrderBy(x => x.SelectionId) : filtered.OrderByDescending(x => x.SelectionId);
+                else filtered = filtered.OrderBy(x => x.MarketName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                var markets = filter.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var rec in filtered)
                 {
-                    HttpContext.Session.Set("AbacusJointSelection", null);
+                    var isInMarket = false;
+                    foreach (var market in markets)
+                    {
+                        if (rec.MarketName.ToLower().Contains(market.ToLower()))
+                        {
+                            isInMarket = true;
+                        }
+                    }
+
+                    if (isInMarket)
+                    {
+                        newFiltered.Add(rec);
+                    }
                 }
             }
-
-            HttpContext.Session.Set("CurrentEventId", BitConverter.GetBytes(currentEventId));
-
-            return View(new SelectionFilter
+            else
             {
-                EventId = eventId,
-                Filter = filter
-            });
+                newFiltered = filtered.ToList();
+            }
+
+            var paged = newFiltered.Skip((current - 1) * rowCount).Take(rowCount > -1 ? rowCount : int.MaxValue);
+
+            string json = "{\"current\": " + current + ", \"rowCount\": " + rowCount + ",\"rows\": " + JsonConvert.SerializeObject(paged.ToList()) + ", \"total\": " + filtered.Count() + "}";
+            return new ContentResult { Content = json, ContentType = "application/json" };
         }
-    }*/
-        /*    private readonly ILogger<HomeController> _logger;
 
-            public HomeController(ILogger<HomeController> logger)
-            {
-                _logger = logger;
-            }
+        private IEnumerable<AbacusSelection> GetRawSelections(long currentEventId)
+        {
+            PublisherMessage message = PesToRabbitBridge.Core.Kafka.KafkaConsumer.GetMostRecentMessageForEventId(currentEventId);
 
-            public IActionResult Index()
-            {
-                return View();
-            }
-
-            public IActionResult Privacy()
-            {
-                return View();
-            }
-
-            [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-            public IActionResult Error()
-            {
-                return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-            }*/
+            AbacusEventFromPublisherMessage evt = new AbacusEventFromPublisherMessage(message);
+            return evt?.Selections;
         }
     }
+}
