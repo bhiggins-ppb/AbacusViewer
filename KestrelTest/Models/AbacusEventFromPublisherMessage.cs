@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf;
 using Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace AbacusViewer.Models
 {
@@ -48,12 +49,19 @@ namespace AbacusViewer.Models
                         {
                             var selectionVector = UnpackBits(s.AgglomeratedOutcomes, 10000);
 
+                            var outcomes = new StringBuilder();
+                            foreach(var bit in selectionVector)
+                            {
+                                outcomes.Append(bit);
+                            }
+
                             ret.Add(new AbacusSelection
                             {
                                 MarketTypeId = m.MarketTypeId,
                                 SelectionId = s.SelectionId,
                                 Probability = selectionVector.Count(x => x.Equals(1)) / (double)selectionVector.Count(),
-                                Outcomes = selectionVector
+                                Outcomes = selectionVector,
+                                UnpackedOutcomes = outcomes.ToString()
                             });
                            
                         }

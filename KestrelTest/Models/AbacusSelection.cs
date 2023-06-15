@@ -23,6 +23,10 @@ namespace AbacusViewer.Models
         [JsonProperty("price")]
         public double Price { get { return Probability > 0 ? Math.Round(1.0 / Probability,3) : 0; } }
 
+        [JsonProperty("outcomes")]
         public byte[] Outcomes { get; set; }
+
+        [JsonProperty("unpacked_outcomes")]
+        public string UnpackedOutcomes { get; set; }
     }
 }

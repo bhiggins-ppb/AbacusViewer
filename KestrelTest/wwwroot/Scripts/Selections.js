@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
 
-    var jointProbability = 1;
+    var selectedRows = {};
 
     $("#grid-data").bootgrid({
 
@@ -23,35 +23,68 @@
     })
     .on("selected.rs.jquery.bootgrid", function (e, rows) {
         for (var i = 0; i < rows.length; i++) {
-            jointProbability *= rows[i].probability; // TODO: replace dummy calculation
+            selectedRows[rows[i].selection_id] = rows[i].unpacked_outcomes;
         }
 
-        var selectedRows = $("#grid-data").bootgrid("getSelectedRows");
-
-        $("#joint span").text(jointProbability.toFixed(3));
-
-        if (jointProbability != 0) {
-            $("#price span").text((1 / jointProbability).toFixed(3));
-        }
-        
+        var result = calcJointProbability(selectedRows);
+        updateLabels(result);
     })
     .on("deselected.rs.jquery.bootgrid", function (e, rows) {
         for (var i = 0; i < rows.length; i++) {
-            jointProbability /= rows[i].probability;
+            delete selectedRows[rows[i].selection_id];
         }
 
-        var selectedRows = $("#grid-data").bootgrid("getSelectedRows");
-
-        $("#joint span").text(jointProbability.toFixed(3));
-
-        if (jointProbability != 0) {
-            $("#price span").text((1 / jointProbability).toFixed(3));
-        }
+        var result = calcJointProbability(selectedRows);
+        updateLabels(result);
     });
 
     //add pull-left class to search bar
     $('#grid-data-header .search').addClass('pull-left');
 })
+
+function updateLabels(jointProbability) {
+    $("#joint span").text(jointProbability.toFixed(3));
+
+    if (jointProbability != 0) {
+        $("#joint span").text(jointProbability.toFixed(3));
+        $("#price span").text((1 / jointProbability).toFixed(3));
+    }
+    else {
+        $("#joint span").text(0);
+        $("#price span").text(0);
+    }
+}
+
+function calcJointProbability(selectedRows) {
+    
+    var outcomes = new Array();
+    var count = 0;
+
+    jQuery.each(selectedRows, function (i, val) {
+        outcomes.push(selectedRows[i]);
+    });
+    if (outcomes.length > 0) {
+        var simulationsNumber = outcomes[0].length;
+
+        for (var i = 0; i < simulationsNumber; i++) {
+            var simulationResult = 1;
+            for (var j = 0; j < outcomes.length; j++) {
+                simulationResult *= outcomes[j][i];
+            }
+            count += simulationResult;
+        }
+        
+        return count / simulationsNumber;
+    }
+    else return 0;
+    
+    /*var selectedRows = $("#grid-data").bootgrid("getSelectedRows");
+    for (var i = 0; i < selectedRows.length; i++) {
+
+        rowData = $("#grid-data").data('.rs.jquery.bootgrid').rows[1];
+        alert(rowData.unpacked_outcomes);
+    }*/
+}
 
 function DoReload() {
     //if the id exists in the div; likewise you could get the value from the window.location.search value.
@@ -61,13 +94,4 @@ function DoReload() {
     } else {
         location.reload();
     }
-}
-
-function CalcJointProbability(cb) {
-    const tokens = cb.id.split("_");
-    const marketTypeId = tokens[0];
-    const selectionId = tokens[1];
-    const probability = tokens[3];
-
-    // TODO: add actual implementation
 }
