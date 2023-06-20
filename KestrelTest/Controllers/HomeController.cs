@@ -95,9 +95,9 @@ namespace AbacusViewer.Controllers
             PublisherMessage message = _kafkaConsumer.GetMostRecentMessageForEventId(currentEventId);
             EventHierarchy eh = _emsService.GetEventMarketSelections(currentEventId);
             
-            var emsSelectionLookup = eh.Markets
+            var emsSelectionLookup = eh?.Markets
                 .SelectMany(m => m.Selections)
-                .ToDictionary(s => s.PaddyPowerId, s => s.Name);
+                .ToDictionary(s => s.PaddyPowerId, s => s.Name) ?? new Dictionary<long, string>();
 
             AbacusEventFromPublisherMessage evt = new AbacusEventFromPublisherMessage(message);
             return evt?.GetSelections(emsSelectionLookup);
