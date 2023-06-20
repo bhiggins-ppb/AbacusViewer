@@ -10,10 +10,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="proto\pes_v3.proto" />
-  </ItemGroup>
-
   <!--ItemGroup>
     <Folder Include="Services\" />
   </ItemGroup-->
@@ -33,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="proto\pes_v3.proto" />
+    <Protobuf Include="Contracts\V3\pes_v3.proto" />
   </ItemGroup>
 
 </Project>
