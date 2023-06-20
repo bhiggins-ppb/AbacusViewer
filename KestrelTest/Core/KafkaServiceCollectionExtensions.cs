@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace KestrelTest.Core
+﻿namespace KestrelTest.Core
 {
     public static class KafkaServiceCollectionExtensions
     {

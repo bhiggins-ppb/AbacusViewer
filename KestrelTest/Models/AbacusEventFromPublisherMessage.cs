@@ -36,39 +36,36 @@ namespace AbacusViewer.Models
         [JsonProperty("market_count")]
         public int MarketCount { get { return _agglomeratedEvent.Markets.Count(); } }
 
-        public IEnumerable<AbacusSelection> Selections
+        public IEnumerable<AbacusSelection> GetSelections(Dictionary<long, string> emsSelectionLookup)
         {
-            get
+            var ret = new List<AbacusSelection>();
+            if (_agglomeratedEvent?.Markets != null)
             {
-                var ret = new List<AbacusSelection>();
-                if (_agglomeratedEvent?.Markets != null)
+                foreach (var m in _agglomeratedEvent.Markets.AsParallel())
                 {
-                    foreach (var m in _agglomeratedEvent.Markets.AsParallel())
+                    foreach (var s in m.Selections)
                     {
-                        foreach (var s in m.Selections)
+                        var selectionVector = UnpackBits(s.AgglomeratedOutcomes, 10000);
+
+                        var outcomes = new StringBuilder();
+                        foreach(var bit in selectionVector)
                         {
-                            var selectionVector = UnpackBits(s.AgglomeratedOutcomes, 10000);
-
-                            var outcomes = new StringBuilder();
-                            foreach(var bit in selectionVector)
-                            {
-                                outcomes.Append(bit);
-                            }
-
-                            ret.Add(new AbacusSelection
-                            {
-                                MarketTypeId = m.MarketTypeId,
-                                SelectionId = s.SelectionId,
-                                Probability = selectionVector.Count(x => x.Equals(1)) / (double)selectionVector.Count(),
-                                Outcomes = selectionVector,
-                                UnpackedOutcomes = outcomes.ToString()
-                            });
-                           
+                            outcomes.Append(bit);
                         }
+
+                        ret.Add(new AbacusSelection
+                        {
+                            MarketTypeId = m.MarketTypeId,
+                            SelectionId = emsSelectionLookup.ContainsKey(s.SelectionId) ? emsSelectionLookup[s.SelectionId] : $"{s.SelectionId}",
+                            Probability = selectionVector.Count(x => x.Equals(1)) / (double)selectionVector.Count(),
+                            Outcomes = selectionVector,
+                            UnpackedOutcomes = outcomes.ToString()
+                        });
+                           
                     }
                 }
-                return ret;
             }
+            return ret;
         }
 
         private static byte[] UnpackBits(ByteString byteString, int numSimulations)

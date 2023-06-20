@@ -2,9 +2,6 @@
 using AbacusViewer.Models;
 using Lightyear.Common.Agglomerator.Contracts.Proto.PesV3;
 using Newtonsoft.Json;
-using Confluent.Kafka;
-using System.IO.Compression;
-using System.Text;
 using KestrelTest.Core;
 
 namespace AbacusViewer.Controllers
@@ -12,10 +9,12 @@ namespace AbacusViewer.Controllers
     public partial class HomeController : Controller
     {
         private readonly KafkaConsumer _kafkaConsumer;
+        private readonly EmsService _emsService;
 
-        public HomeController(KafkaConsumer kafkaConsumer)
+        public HomeController(KafkaConsumer kafkaConsumer, EmsService emsService)
         {
             _kafkaConsumer = kafkaConsumer;
+            _emsService = emsService;
         }
 
         public ActionResult Index()
@@ -92,10 +91,16 @@ namespace AbacusViewer.Controllers
 
         private IEnumerable<AbacusSelection> GetRawSelections(long currentEventId)
         {
+            // TODO: Run the two external calls in parallel
             PublisherMessage message = _kafkaConsumer.GetMostRecentMessageForEventId(currentEventId);
+            EventHierarchy eh = _emsService.GetEventMarketSelections(currentEventId);
+            
+            var emsSelectionLookup = eh.Markets
+                .SelectMany(m => m.Selections)
+                .ToDictionary(s => s.PaddyPowerId, s => s.Name);
 
             AbacusEventFromPublisherMessage evt = new AbacusEventFromPublisherMessage(message);
-            return evt?.Selections;
+            return evt?.GetSelections(emsSelectionLookup);
         }
     }
 }

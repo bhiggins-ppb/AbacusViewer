@@ -7,6 +7,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddKafkaConsumer(builder.Configuration);
+builder.Services.AddEmsService(builder.Configuration);
 
 var app = builder.Build();
 
