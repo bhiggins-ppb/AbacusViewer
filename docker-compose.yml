@@ -1,0 +1,17 @@
+# This file can be used to achieve 100% passing tests.
+# To test locally, build the docker image using "docker build . -t sbbme"**, then we "docker compose up" using this file and we run the tests. 
+# ** The application must be built with the release configuration so as docker build can find the neccesssary dlls. 
+version: "2.1"
+services:
+    abacus_app:
+        build: ./KestrelTest
+        container_name: "abacus"
+        ports: 
+            - "5023:5023"
+        networks:
+            - kafka-net
+        restart: always
+
+networks:
+    kafka-net:
+        driver: bridge

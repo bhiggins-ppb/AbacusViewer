@@ -11,6 +11,6 @@ RUN apt update && apt install -y telnet
 WORKDIR /src
 EXPOSE 5023
 
-COPY ./KestrelTest/bin/Debug/net6.0/publish .
+COPY ./bin/Debug/net6.0/publish .
 
 ENTRYPOINT ["dotnet", "KestrelTest.dll"]
