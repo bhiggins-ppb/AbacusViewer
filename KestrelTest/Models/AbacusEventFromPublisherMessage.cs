@@ -56,12 +56,12 @@ namespace AbacusViewer.Models
                         ret.Add(new AbacusSelection
                         {
                             MarketTypeId = m.MarketTypeId,
-                            SelectionId = emsSelectionLookup.ContainsKey(s.SelectionId) ? emsSelectionLookup[s.SelectionId] : $"{s.SelectionId}",
+                            SelectionId = s.SelectionId,
+                            SelectionName = emsSelectionLookup.ContainsKey(s.SelectionId) ? emsSelectionLookup[s.SelectionId] : $"{s.SelectionId}",
                             Probability = selectionVector.Count(x => x.Equals(1)) / (double)selectionVector.Count(),
                             Outcomes = selectionVector,
                             UnpackedOutcomes = outcomes.ToString()
-                        });
-                           
+                        });                           
                     }
                 }
             }

@@ -12,7 +12,10 @@ namespace AbacusViewer.Models
         public string MarketName {  get { return ((MarketTypeId)Enum.ToObject(typeof(MarketTypeId), MarketTypeId)).ToString(); } }
 
         [JsonProperty("selection_id")]
-        public string SelectionId { get; set; }
+        public long SelectionId { get; set; }
+
+        [JsonProperty("selection_name")]
+        public string SelectionName { get; set; }
 
         [JsonProperty("probability")]
         public double Probability { get; set; }

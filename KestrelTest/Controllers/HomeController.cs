@@ -91,16 +91,22 @@ namespace AbacusViewer.Controllers
 
         private IEnumerable<AbacusSelection> GetRawSelections(long currentEventId)
         {
-            // TODO: Run the two external calls in parallel
             PublisherMessage message = _kafkaConsumer.GetMostRecentMessageForEventId(currentEventId);
-            EventHierarchy eh = _emsService.GetEventMarketSelections(currentEventId);
-            
-            var emsSelectionLookup = eh?.Markets
+
+            AbacusEventFromPublisherMessage evt = new AbacusEventFromPublisherMessage(message);
+
+            var emsSelectionLookup = message != null ? GetEmsSelectionLookup(message.EventId) : new Dictionary<long, string>();
+            return evt?.GetSelections(emsSelectionLookup);
+        }
+
+        private Dictionary<long, string> GetEmsSelectionLookup(long eventId)
+        {
+            EventHierarchy eh = _emsService.GetEventMarketSelections(eventId);
+            var emsSelectionLookup = _emsService.GetEventMarketSelections(eventId)?.Markets
                 .SelectMany(m => m.Selections)
                 .ToDictionary(s => s.PaddyPowerId, s => s.Name) ?? new Dictionary<long, string>();
 
-            AbacusEventFromPublisherMessage evt = new AbacusEventFromPublisherMessage(message);
-            return evt?.GetSelections(emsSelectionLookup);
+            return emsSelectionLookup;
         }
     }
 }
