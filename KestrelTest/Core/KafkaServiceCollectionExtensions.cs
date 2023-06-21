@@ -9,9 +9,15 @@
                 throw new ArgumentNullException(nameof(services));
             }
 
-            var kafkaConsumerConfiguration = configurationManager.GetSection("KafkaConsumer").Get<KafkaConsumerConfiguration>();
-            services.AddSingleton(kafkaConsumerConfiguration);
-            services.AddScoped<KafkaConsumer>();
+            KafkaConsumerConfiguration GetKafkaConfiguration(string sectionName)
+                => configurationManager.GetSection(sectionName).Get<KafkaConsumerConfiguration>();
+
+            // A "factory method" to create a prematch or in-play topic consumer depending on the boolean provided
+            services.AddScoped<Func<bool, KafkaConsumer>>(provider => inPlay => inPlay switch
+            {
+                false => new KafkaConsumer(GetKafkaConfiguration("KafkaConsumerPreMatch")),
+                true => new KafkaConsumer(GetKafkaConfiguration("KafkaConsumerInPlay"))
+            });
 
             return services;
         }

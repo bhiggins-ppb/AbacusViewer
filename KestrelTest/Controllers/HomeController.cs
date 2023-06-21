@@ -8,12 +8,12 @@ namespace AbacusViewer.Controllers
 {
     public partial class HomeController : Controller
     {
-        private readonly KafkaConsumer _kafkaConsumer;
+        private readonly Func<bool, KafkaConsumer> _createConsumer;
         private readonly EmsService _emsService;
 
-        public HomeController(KafkaConsumer kafkaConsumer, EmsService emsService)
+        public HomeController(Func<bool, KafkaConsumer> createConsumer, EmsService emsService)
         {
-            _kafkaConsumer = kafkaConsumer;
+            _createConsumer = createConsumer;
             _emsService = emsService;
         }
 
@@ -41,7 +41,8 @@ namespace AbacusViewer.Controllers
         {
             if (searchPhrase == null) searchPhrase = string.Empty;
 
-            var raw = GetRawSelections(eventId)?.ToList();
+            // TODO: Change MatchStage dynamically from the UI
+            var raw = GetRawSelections(false, eventId)?.ToList();
 
             var newFiltered = new List<AbacusSelection>();
 
@@ -89,9 +90,9 @@ namespace AbacusViewer.Controllers
             return new ContentResult { Content = json, ContentType = "application/json" };
         }
 
-        private IEnumerable<AbacusSelection> GetRawSelections(long currentEventId)
+        private IEnumerable<AbacusSelection> GetRawSelections(bool inPlay, long currentEventId)
         {
-            PublisherMessage message = _kafkaConsumer.GetMostRecentMessageForEventId(currentEventId);
+            PublisherMessage message = _createConsumer(inPlay).GetMostRecentMessageForEventId(currentEventId);
 
             AbacusEventFromPublisherMessage evt = new AbacusEventFromPublisherMessage(message);
 
