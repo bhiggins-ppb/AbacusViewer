@@ -4,26 +4,65 @@
 
 <section class="jumbotron text-center" id="home-content">
     <div class="container">
+
         <h1 class="jumbotron-heading" id="heading">Abacus Viewer</h1>
         <span>
             <img id="abacus--img" src="../img/abacus.png" alt="abacus image">
         </span>
         <p class="lead text-muted">
-            Search for an eventId published by the Agglomerator.
+            Search for an eventId published by the Executor.
             Also see the markets and selections published for that Event ID
             and check the abacus price for a set of selections.
         </p>
+        
         <br>
-        <form class="form-inline" onSubmit="return false;">
-            <div class="form-group col-xs-5 col-xs-offset-1 col-sm-6 col-sm-offset-1" id="search-form">
+        
+        <div class="row form-inline">
+            <div class="form-group form-control-lg" id="search-form">
                 <label class="sr-only" for="event-id-input">EventId</label>
                 <input oninput="validateEventId()" type="text" class="form-control" name="event-id-input" id="event-id-input" placeholder="Event ID">
             </div>
-            <a href="@Url.Action("Selections", "Home")" class="btn btn-primary col-xs-3" id="search-events" onclick="return validateEventId()">
-                Search
+            <button type="button" class="btn btn-large btn-primary" onclick="searchEvent(false);">
+                Search pre-match
                 <i class="fas fa-search abacus--home--icon"></i>
-            </a>
-        </form>
+            </button>
+            <button type="button" class="btn btn-large btn-grey" onclick="searchEvent(true);">
+                Search in-play
+                <i class="fas fa-search abacus--home--icon"></i>
+            </button>
+        </div>
+
+        <br/><br/>
+
+        <div class="row" id="selections-list" style="visibility: hidden;">
+
+            <div class="math">
+                <div class="callout callout-default" id="joint">
+                    <h4>Joint-Selection Probability  <span class="badge badge-light" id="joint-probability">0</span></h4>
+                </div>
+                <div class="callout callout-primary" id="price">
+                    <h4>Price <span class="badge badge-light">0</span></h4>
+                </div>
+            </div>
+            
+            <div id="table-container">
+                <table id="grid-data" class="table table-condensed table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th data-column-id="market_name" data-sortable="true" data-header-css-class="market-name-header-name" data-width="30%">Market Name</th>
+                            <th data-column-id="market_type_id" data-sortable="true">Market Id</th>
+                            <th data-column-id="selection_name" data-sortable="false" data-width="40%">Selection Name</th>
+                            <th data-column-id="selection_id" data-sortable="false" data-type="numeric" data-converter="numeric" data-identifier="true" data-visible="false" data-visible-in-selection="false">Selection Name</th>
+                            <th data-column-id="probability" data-sortable="false">Probability</th>
+                            <th data-column-id="price" data-type="numeric" data-sortable="false">Price</th>
+                            <th data-column-id="unpacked_outcomes" data-visible="false" data-visible-in-selection="false">Outcomes</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 </section>
 

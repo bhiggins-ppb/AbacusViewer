@@ -109,11 +109,27 @@
 	border-color: var(--primary-color);
 }
 
+.btn-default {
+	color: var(--white-colour);
+	background-color: var(--primary-color);
+	border-color: var(--primary-color);
+}
+
+.btn-grey {
+	color: var(--white-colour);
+	background-color: var(--default-color);
+	border-color: var(--default-color);
+}
+
+.btn-grey:hover {
+	color: var(--white-colour);
+}
+
 /*
 	Image & icons
 */
 
-#abacus--img {
+	#abacus--img {
 	width: 50px;
 	margin-bottom: 30px;
 	margin-left: 10px;
@@ -130,7 +146,6 @@
 #event-id-input {
 	height: 38px;
 	width: 100%;
-    margin-left: 12px;
 }
 
 /*
@@ -139,6 +154,10 @@
 
 .table {
     margin-bottom: 30px;
+}
+
+.table > tbody > tr.active > td {
+	background-color: #d4f3fc;
 }
 
 .pagination a:hover {

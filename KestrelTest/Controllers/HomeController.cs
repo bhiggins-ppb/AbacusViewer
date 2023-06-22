@@ -22,27 +22,12 @@ namespace AbacusViewer.Controllers
             return View();
         }
 
-        public ActionResult Markets()
-        {
-            return View();
-        }
-
-        public ActionResult Selections(long eventId, string filter)
-        {
-            return View(new SelectionFilter
-            {
-                EventId = eventId,
-                Filter = filter
-            });
-        }
-
         [HttpPost]
-        public ActionResult Selections(long eventId, int current, int rowCount, Dictionary<string, string> sort, string searchPhrase, string filter)
+        public ActionResult Selections(long eventId, int current, int rowCount, Dictionary<string, string> sort, string searchPhrase, string filter, bool inPlay)
         {
             if (searchPhrase == null) searchPhrase = string.Empty;
 
-            // TODO: Change in-play flag dynamically from the UI
-            var raw = GetRawSelections(false, eventId)?.ToList();
+            var raw = GetRawSelections(inPlay, eventId)?.ToList();
 
             var newFiltered = new List<AbacusSelection>();
 
