@@ -101,7 +101,6 @@ namespace AbacusViewer.Controllers
 
         private Dictionary<long, string> GetEmsSelectionLookup(long eventId)
         {
-            EventHierarchy eh = _emsService.GetEventMarketSelections(eventId);
             var emsSelectionLookup = _emsService.GetEventMarketSelections(eventId)?.Markets
                 .SelectMany(m => m.Selections)
                 .ToDictionary(s => s.PaddyPowerId, s => s.Name) ?? new Dictionary<long, string>();
