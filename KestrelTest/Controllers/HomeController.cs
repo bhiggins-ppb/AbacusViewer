@@ -41,7 +41,7 @@ namespace AbacusViewer.Controllers
         {
             if (searchPhrase == null) searchPhrase = string.Empty;
 
-            // TODO: Change MatchStage dynamically from the UI
+            // TODO: Change in-play flag dynamically from the UI
             var raw = GetRawSelections(false, eventId)?.ToList();
 
             var newFiltered = new List<AbacusSelection>();
