@@ -4,7 +4,7 @@
 version: "2.1"
 services:
     abacus_app:
-        build: ./KestrelTest
+        build: ./src
         container_name: "abacus"
         ports: 
             - "5023:5023"

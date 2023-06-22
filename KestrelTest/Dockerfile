@@ -1,16 +1,17 @@
-# This file is a work in progress and can be safely ignored during the .net core upgrade PR review. 
-# Building this container is a pre-requisite to spinning up the docker-compose system. 
-# This file will be in an future MR which will enable our new pipeline. 
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-jammy AS final
 
-# TODO: this is the wrong image: we should be using the RUNTIME not the SDK
-#       will fix later.
-FROM mcr.microsoft.com/dotnet/sdk:6.0
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y \
+        telnet \
+		curl \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt update && apt install -y telnet
+WORKDIR /publish
 
-WORKDIR /src
 EXPOSE 5023
 
-COPY ./bin/Debug/net6.0/publish .
+COPY KestrelTest/bin/Release/net7.0/publish .
 
+ENV ASPNETCORE_URLS="http://+:5023"
 ENTRYPOINT ["dotnet", "KestrelTest.dll"]
