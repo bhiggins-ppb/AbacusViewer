@@ -1,0 +1,226 @@
+/*
+	Global CSS Variables
+*/
+
+:root {
+	--default-color: #777;
+	--primary-color: #428bca;
+	--green-colour: #00A65A;
+	--dark-green-colour: #008046;
+	--light-grey-colour: #ccc;
+	--blue-colour: #0275d8;
+	--white-colour: #fff;
+	--main-opacity: 0.75;
+	--light-opacity: 0.85;
+}
+
+/*
+	NavBar styles
+*/
+
+#abacus--navbar {
+	background: var(--default-color);
+	border-color: var(--default-color);
+}
+
+#abacus--brand {
+	font-size: 1.5em;
+}
+
+#abacus--brand, #abacus--navbar .abacus--link {
+	color: var(--white-colour);
+}
+
+#abacus--brand:hover {
+	opacity: var(--main-opacity);
+}
+
+#abacus--navbar .abacus--link:hover {
+	opacity: var(--light-opacity);
+}
+
+#brand--text--light {
+	font-weight: 200;
+	padding-right: 4px;
+}
+
+.list-item {
+	transition: background 400ms ease; /* set transition to add nice hover effect to list item background colour */
+}
+
+.list-item:hover {
+	background: var(--dark-green-colour);
+}
+
+/*
+	Jumbotron
+*/
+
+#heading {
+	display: inline-block;
+}
+
+.jumbotron {
+	padding-top: 6rem;
+	padding-bottom: 6rem;
+	margin-bottom: -20px;
+	background-color: #fff;
+}
+
+.jumbotron p:last-child {
+	margin-bottom: 0;
+}
+
+.jumbotron-heading {
+	font-weight: 300;
+}
+
+.jumbotron p {
+    font-size: 17px;
+}
+
+#markets-jumbotron {
+    margin-bottom: -30px !important;
+}
+
+
+/*
+	buttons
+ */
+
+.btn {
+	user-select: none;
+	border: 1px solid transparent;
+	padding: .5rem 1rem;
+	font-size: 1rem;
+	border-radius: .25rem;
+	line-height: 1.25;
+	text-align: center;
+}
+
+.btn-secondary {
+	background-color: var(--white-colour);
+	border-color: var(--light-grey-colour);
+}
+
+.btn-primary {
+	color: var(--white-colour);
+	background-color: var(--primary-color);
+	border-color: var(--primary-color);
+}
+
+.btn-default {
+	color: var(--white-colour);
+	background-color: var(--primary-color);
+	border-color: var(--primary-color);
+}
+
+.btn-grey {
+	color: var(--white-colour);
+	background-color: var(--default-color);
+	border-color: var(--default-color);
+}
+
+.btn-grey:hover {
+	color: var(--white-colour);
+}
+
+/*
+	Image & icons
+*/
+
+	#abacus--img {
+	width: 50px;
+	margin-bottom: 30px;
+	margin-left: 10px;
+}
+
+.abacus--home--icon {
+	padding-left: 3px;
+}
+
+/*
+	form elements
+*/
+
+#event-id-input {
+	height: 38px;
+	width: 100%;
+}
+
+/*
+	table
+*/
+
+.table {
+    margin-bottom: 30px;
+}
+
+.table > tbody > tr.active > td {
+	background-color: #d4f3fc;
+}
+
+.pagination a:hover {
+    cursor: pointer !important;
+}
+
+#click-button {
+    margin-left: 25px;
+}
+
+.market-name-header-name{
+	width: 30%;
+}
+/*
+	event page
+*/
+.event-heading {
+	font-weight: 200;
+	text-align: left;
+}
+
+.event-heading .fa {
+	color: var(--blue-colour);
+}
+
+/*
+    market price & probability
+*/
+
+.callout {
+	padding: 20px;
+	margin: 20px 0;
+	border: 1px solid #eee;
+	border-left-width: 5px;
+	border-radius: 3px;
+}
+
+.callout h4 {
+	margin-top: 0;
+	margin-bottom: 5px;
+}
+
+.callout p:last-child {
+	margin-bottom: 0;
+}
+
+.callout-default {
+	border-left-color: var(--default-color);
+}
+
+.callout-default h4 {
+	color: var(--default-color);
+}
+
+.callout-primary {
+	border-left-color: var(--primary-color);
+}
+
+.callout-primary h4{
+	color: var(--primary-color);
+}
+
+.math div{
+	display: inline-block;
+	width: 49.8%;
+}

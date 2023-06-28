@@ -1,5 +1,3 @@
-.vs/**
-/bin/**
-/obj/**
-Kafka/bin/**
-Kafka/obj/**
+.vs/
+bin/
+obj/
